@@ -1,10 +1,7 @@
-import logo from './logo.svg';
 import './App.css';
 
-//API key cfbc1bc757de1b6de3d8f229692dcee9
-
 import React from 'react';
-import Weather from './Weather';
+import Weather from './weather';
 const App = () => {
   return (
     <div>

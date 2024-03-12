@@ -1,30 +1,61 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import apiKeys from './apiKeys';
 
 const Weather = () => {
     const [city, setCity] = useState('');
     const [weatherData, setWeatherData] = useState(null);
-    const fetchData = async () => {
+
+    const fetchData = async (query) => {
         try {
             const response = await axios.get(
-                `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=cfbc1bc757de1b6de3d8f229692dcee9`
+                `${apiKeys.base}weather?q=${query}&units=metric&appid=${apiKeys.key}`
             );
             setWeatherData(response.data);
-            console.log(response.data); //You can see all the weather data in console log
         } catch (error) {
             console.error(error);
         }
     };
+
+    const getWeatherByCoords = async (lat, lon) => {
+        try {
+            const response = await axios.get(
+                `${apiKeys.base}weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKeys.key}`
+            );
+            setWeatherData(response.data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     useEffect(() => {
-        fetchData();
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    getWeatherByCoords(position.coords.latitude, position.coords.longitude);
+                },
+                (error) => {
+                    console.error(error);
+                    // If location is disabled default to London
+                    fetchData('London');
+                }
+            );
+        } else {
+            console.error("Geolocation not available");
+            // If location is disabled default to London
+            fetchData('London');
+        }
     }, []);
+
     const handleInputChange = (e) => {
         setCity(e.target.value);
     };
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetchData();
+        fetchData(city);
     };
+
     return (
         <div>
             <form onSubmit={handleSubmit}>
@@ -52,4 +83,5 @@ const Weather = () => {
         </div>
     );
 };
+
 export default Weather;
